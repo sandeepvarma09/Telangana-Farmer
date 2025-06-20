@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Telangana Rythu App",
+  "description": "A comprehensive mobile assistant for farmers in Telangana, providing weather updates, market rates, crop guidance, and an AI-powered chatbot.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}

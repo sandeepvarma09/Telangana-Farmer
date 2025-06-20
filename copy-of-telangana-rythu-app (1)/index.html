@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Telangana Rythu App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      body, html {
+        height: 100%;
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+      #root {
+        height: 100%;
+        position: relative; /* For background stacking context */
+      }
+      .telugu-font {
+        font-family: 'Gautami', 'Noto Sans Telugu', sans-serif;
+      }
+      .english-font {
+        font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      }
+      .hindi-font {
+        font-family: 'Hind', 'Noto Sans Devanagari', sans-serif;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+      /* Dynamic Background System Styles */
+      .dynamic-background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1; /* Behind all content */
+        transition: background-color 1s ease-in-out, opacity 1s ease-in-out;
+      }
+
+      .dynamic-background-image-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: opacity 1s ease-in-out;
+        opacity: 1;
+      }
+
+      .dynamic-background-overlay-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: background-color 0.7s ease-in-out, opacity 0.7s ease-in-out;
+        opacity: 1;
+      }
+
+      /* Time of Day Image Placeholders (replace with actual images) */
+      .bg-time-dawn { background-image: linear-gradient(to bottom, #FFB6C1, #FFDAB9); /* Soft Pink to Peach */ }
+      .bg-time-morning { background-image: linear-gradient(to bottom, #87CEEB, #B2FFFF); /* Sky Blue to Light Cyan */ }
+      .bg-time-afternoon { background-image: linear-gradient(to bottom, #1E90FF, #87CEFA); /* Dodger Blue to Light Sky Blue */ }
+      .bg-time-dusk { background-image: linear-gradient(to bottom, #FF8C00, #DA70D6); /* Dark Orange to Orchid */ }
+      .bg-time-night { background-image: linear-gradient(to bottom, #00003B, #191970); /* Dark Navy to Midnight Blue */ }
+
+      /* Weather Overlay Placeholders */
+      .bg-overlay-clear { background-color: rgba(255, 223, 186, 0.05); /* Very faint warm yellow */ }
+      .bg-overlay-partlyCloudy { background-color: rgba(220, 220, 220, 0.15); }
+      .bg-overlay-overcast { background-color: rgba(150, 150, 150, 0.25); }
+      .bg-overlay-rain { background-color: rgba(135, 206, 235, 0.2); }
+      .bg-overlay-warning { background-color: rgba(106, 90, 205, 0.3); animation: pulseWarning 2s infinite ease-in-out; }
+      
+      @keyframes pulseWarning {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.4; }
+      }
+
+      /* Page Specific Background Placeholders */
+      .bg-page-cropguide {
+        /* Placeholder: blurred green field */
+        background-image: linear-gradient(rgba(100, 150, 100, 0.7), rgba(120, 170, 120, 0.8));
+        /* Add filter: blur(8px); if using actual images */
+      }
+      .bg-page-mandirates {
+        /* Placeholder: subtle texture/neutral */
+        background-color: #ECEFF1; /* Light bluish grey */
+        /* background-image: url('path-to-subtle-texture.png'); */
+      }
+      .bg-page-form {
+        background-color: #f8f9fa; /* Very light grey / off-white */
+      }
+      .bg-page-default {
+        background-color: #f0f2f5; /* Default app background */
+      }
+
+      /* High Contrast Mode Styles */
+      .high-contrast-mode .dynamic-background-container,
+      .high-contrast-mode .dynamic-background-image-layer,
+      .high-contrast-mode .dynamic-background-overlay-layer {
+        background-image: none !important;
+        background-color: #000000 !important; /* Black background for high contrast */
+        opacity: 1 !important;
+      }
+      /* Ensure text is white on high contrast background */
+      .high-contrast-mode body {
+          color: #FFFFFF !important;
+      }
+      .high-contrast-mode .text-gray-800, 
+      .high-contrast-mode .text-gray-700,
+      .high-contrast-mode .text-gray-600,
+      .high-contrast-mode .text-gray-500,
+      .high-contrast-mode [class*="text-gray-"] { /* Catch-all for gray text */
+          color: #FFFFFF !important;
+      }
+      .high-contrast-mode .bg-white,
+      .high-contrast-mode [class*="bg-gray-"],
+      .high-contrast-mode [class*="bg-yellow-"],
+      .high-contrast-mode [class*="bg-blue-"],
+      .high-contrast-mode [class*="bg-green-"] {
+          background-color: #1a1a1a !important; /* Dark grey for cards/elements */
+          color: #FFFFFF !important;
+          border-color: #555555 !important;
+      }
+       .high-contrast-mode .text-primary,
+       .high-contrast-mode .text-primary-dark,
+       .high-contrast-mode .text-accent {
+         color: #66FF66 !important; /* Bright green for primary actions */
+       }
+       .high-contrast-mode .bg-primary,
+       .high-contrast-mode .bg-primary-dark {
+         background-color: transparent !important;
+         border: 1px solid #66FF66 !important;
+         color: #66FF66 !important;
+       }
+       .high-contrast-mode .bg-primary-light\/30 { /* Specific Tailwind class */
+            background-color: rgba(102, 255, 102, 0.3) !important;
+       }
+       .high-contrast-mode select,
+       .high-contrast-mode input,
+       .high-contrast-mode textarea,
+       .high-contrast-mode button {
+            background-color: #333333 !important;
+            color: #FFFFFF !important;
+            border: 1px solid #777777 !important;
+       }
+       .high-contrast-mode option { /* For select dropdowns */
+           background-color: #333333 !important;
+           color: #FFFFFF !important;
+       }
+       .high-contrast-mode .shadow-lg,
+       .high-contrast-mode .shadow-md,
+       .high-contrast-mode .shadow,
+       .high-contrast-mode .shadow-xl,
+       .high-contrast-mode .shadow-2xl {
+           box-shadow: none !important;
+       }
+
+
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                light: '#66bb6a',
+                DEFAULT: '#4caf50',
+                dark: '#388e3c',
+              },
+              accent: {
+                DEFAULT: '#2196f3',
+                dark: '#1976d2',
+              },
+            },
+            fontFamily: {
+               sans: ['Roboto', 'sans-serif'],
+               telugu: ['Gautami', 'Noto Sans Telugu', 'sans-serif'],
+               hindi: ['Hind', 'Noto Sans Devanagari', 'sans-serif'],
+            },
+            keyframes: {
+              fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+              fadeOut: { '0%': { opacity: '1' }, '100%': { opacity: '0', visibility: 'hidden' } },
+              pulseWarning: {
+                '0%, 100%': { opacity: '0.8' }, /* Adjusted from style block for consistency */
+                '50%': { opacity: '1' },
+              }
+            },
+            animation: {
+              fadeIn: 'fadeIn 0.5s ease-out forwards',
+              fadeOut: 'fadeOut 0.5s ease-in forwards',
+              pulseWarning: 'pulseWarning 2s infinite ease-in-out',
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2",
+    "recharts": "https://esm.sh/recharts@^2.15.3",
+    "uuid": "https://esm.sh/uuid@^11.1.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.5.1",
+    "gsap": "https://esm.sh/gsap@^3.13.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-page-default"> {/* Default fallback background */}
+    <div id="root" class="h-full"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
